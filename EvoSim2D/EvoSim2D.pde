@@ -10,9 +10,9 @@ void generate() {
 }
 
 void setup() {
-  size(400, 400);
+  size(600, 600);
   colorMode(HSB, 360);
-  world = new Terra(10, 200, 6, 100); //<>//
+  world = new Terra(100, 500, 6, 100); //<>//
   
   register('1');
   register('2');

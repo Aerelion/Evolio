@@ -59,7 +59,6 @@ class Terra { //<>// //<>// //<>//
         newMap[x][y][1] = totalRich; //<>//
         newMap[x][y][2] = map[x][y][2];
         newMap[x][y][3] = map[x][y][3];
-        newMap[x][y][4] = map[x][y][4];
       }
     }
 
@@ -71,35 +70,57 @@ class Terra { //<>// //<>// //<>//
     size = s_;
     seaLvl = z_;
     lakes = l_;
-    int tileNr = 0;
     map = new int[size][size][4];
     randomSeed(worldSeed);
+    noiseSeed(worldSeed);
     
     for (int x = 0; x < size; x++) {
       for (int y = 0; y < size; y++) {
-        map[x][y][0] = int(random(0, 360)); // Food type
+        float var = 0;
+        float scaler = ((float(y)/float(size)) * 360.0) % 90.0;
+        float var2 = random(scaler, 90.0);
+        
+        if (y < size*(1.0/4.0)) {
+          var = 90.0 - var2;
+          map[x][y][0] = int(random(var, 360.0-var));
+          
+        } else if (y < size*(2.0/4.0)) {
+          var = 0.0 + var2;
+          if (random(0,1) > 0.5) {
+            map[x][y][0] = int(random(0.0, 180.0-var));
+          } else {
+            map[x][y][0] = int(random(180.0+var, 360.0));
+          }
+          
+        } else if (y < size*(3.0/4.0)) {
+          var = 90.0 - var2;
+          if (random(0,1) > 0.5) {
+            map[x][y][0] = int(random(0.0, 180.0-var));
+          } else {
+            map[x][y][0] = int(random(180.0+var, 360.0));
+          }
+          
+        } else {
+          var = 0.0 + var2;
+          map[x][y][0] = int(random(var, 360.0-var));
+        }
+            
         map[x][y][1] = int(random(0, 360)); // Food richness
         map[x][y][2] = map[x][y][1]; // Food level
-        map[x][y][3] = int(noise(float(x) * lakes/size, float(y) * lakes/size) * 360); // Water amount
-        map[x][y][4] = tileNr;
+        map[x][y][3] = int(noise(float(x) * lakes/size, float(y) * lakes/size) * 360.0); // Water amount
         
         if (map[x][y][3] > seaLvl) { // When does water form a lake
           map[x][y][2] = -1; // Disabling food from tile (in case of water walkers)
         } else {
           float ori = float(map[x][y][1]);
-          float bonus = float(map[x][y][3]) * (360 / (float(seaLvl)));
-          map[x][y][1] = int((ori + bonus) / 2); // Boosting richness if there's a lot of water and it will add something
+          float bonus = float(map[x][y][3]) * (360.0 / (float(seaLvl)));
+          map[x][y][1] = int((ori + bonus) / 2.0); // Boosting richness if there's a lot of water and it will add something
         }
         
-        tileNr++;
       }
     }
 
-    closen(15, 100);
-    closen(12, 50);
-    closen(9, 25);
-    closen(6, 12);
-    closen(1, 3);
+    closen(1,2);
   }
 
   void display(String arg, boolean stroke) {
