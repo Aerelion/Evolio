@@ -63,7 +63,7 @@ class Terra { //<>// //<>// //<>//
     }
 
     map = newMap;
-  }
+  } // End 'closen'
 
 
   Terra(int s_, int z_, float l_, int worldSeed) {
@@ -121,7 +121,7 @@ class Terra { //<>// //<>// //<>//
         closen(i * (i-1), i*i);
       }
     }
-  }
+  } // End 'Terra'
 
   void display(String arg, boolean stroke) {
     float posVarX = width/size;
@@ -139,7 +139,7 @@ class Terra { //<>// //<>// //<>//
         int sat = 200;
         int bri = 200;
         
-        if (arg == "hue") {
+        if (arg == "world") {
 
           if (map[y][x][2] == -1) {
             hue = 230;
@@ -156,6 +156,16 @@ class Terra { //<>// //<>// //<>//
           }
           
           bri = map[y][x][1];
+          
+        } else if (arg == "hue") {
+          if (map[y][x][2] == -1) {
+            hue = 230;
+            sat = 360;
+          } else {
+            hue = map[y][x][0];
+            sat = 300;
+          }
+          
         }
         
         fill(hue, sat, bri);
@@ -163,5 +173,27 @@ class Terra { //<>// //<>// //<>//
         
       }
     }
-  }
-}
+  } // End 'display'
+  
+  void update(ArrayList<Creature> creatures) {
+    for (int y = 0; y < size; y++) {
+      for (int x = 0; x < size; x++) {
+        creatureList.put(y*size + x, new ArrayList<Creature>());
+        
+        
+      }
+    }
+    
+    for (Creature n : creatures) {
+      int x_ = int(n.body.x);
+      int y_ = int(n.body.y);
+      
+      int tile = y_*size + x_;
+      
+      ArrayList<Creature> population = creatureList.get(tile);
+      population.add(n);
+      creatureList.put(tile, population);
+    }
+  } // End 'update'
+  
+} // End class 'Terra'
