@@ -11,19 +11,19 @@ class Terra { //<>// //<>// //<>//
       mult = 1;
     }
 
-    for (int x = 0; x < size; x++) {
-      for (int y = 0; y < size; y++) {
-        float hue = float(map[x][y][0]);
+    for (int y = 0; y < size; y++) {
+      for (int x = 0; x < size; x++) {
+        float hue = float(map[y][x][0]);
         float tC = cos(radians(hue)) * float(mult);
         float tS = sin(radians(hue)) * float(mult);
 
 
-        int totalRich = map[x][y][1] * mult;
+        int totalRich = map[y][x][1] * mult;
 
         int count = mult;
 
-        for (int x_offset = -depth; x_offset < depth+1; x_offset++) {
-          for (int y_offset = -depth; y_offset < depth+1; y_offset++) {
+        for (int y_offset = -depth; y_offset < depth+1; y_offset++) {
+          for (int x_offset = -depth; x_offset < depth+1; x_offset++) {
 
             if (x+x_offset < size && x+x_offset > 0) {
               if (y+y_offset < size && y+y_offset > 0) {
@@ -31,11 +31,11 @@ class Terra { //<>// //<>// //<>//
                 int newX = x + x_offset;
                 int newY = y + y_offset;
 
-                float newHue = float(map[newX][newY][0]);
+                float newHue = float(map[newY][newX][0]);
                 tC = tC + cos(radians(newHue));
                 tS = tS + sin(radians(newHue));
 
-                totalRich = totalRich + map[newX][newY][1];
+                totalRich = totalRich + map[newY][newX][1];
 
                 count++;
               }
@@ -55,10 +55,10 @@ class Terra { //<>// //<>// //<>//
         //int newHue = int((degrees(sTan)+ 360) % 360);
         totalRich = totalRich / count;
 
-        newMap[x][y][0] = newHue;
-        newMap[x][y][1] = totalRich; //<>//
-        newMap[x][y][2] = map[x][y][2];
-        newMap[x][y][3] = map[x][y][3];
+        newMap[y][x][0] = newHue;
+        newMap[y][x][1] = totalRich; //<>//
+        newMap[y][x][2] = map[y][x][2];
+        newMap[y][x][3] = map[y][x][3];
       }
     }
 
@@ -74,53 +74,53 @@ class Terra { //<>// //<>// //<>//
     randomSeed(worldSeed);
     noiseSeed(worldSeed);
     
-    for (int x = 0; x < size; x++) {
-      for (int y = 0; y < size; y++) {
-        float var = 0;
-        float scaler = ((float(y)/float(size)) * 360.0) % 90.0;
-        float var2 = random(scaler, 90.0);
+    for (int y = 0; y < size; y++) {
+      float scaler = ((float(y)/float(size)) * 360.0) % 90.0;
+      
+      for (int x = 0; x < size; x++) {
         
         if (y < size*(1.0/4.0)) {
-          var = 90.0 - var2;
-          map[x][y][0] = int(random(var, 360.0-var));
+          map[y][x][0] = int(random(90.0 - scaler, 360.0 - (90.0 - scaler)));
           
         } else if (y < size*(2.0/4.0)) {
-          var = 0.0 + var2;
           if (random(0,1) > 0.5) {
-            map[x][y][0] = int(random(0.0, 180.0-var));
+            map[y][x][0] = int(random(0.0, 180.0 - scaler));
           } else {
-            map[x][y][0] = int(random(180.0+var, 360.0));
+            map[y][x][0] = int(random(180.0 + scaler, 360.0));
           }
           
         } else if (y < size*(3.0/4.0)) {
-          var = 90.0 - var2;
           if (random(0,1) > 0.5) {
-            map[x][y][0] = int(random(0.0, 180.0-var));
+            map[y][x][0] = int(random(0.0, 180.0 - (90.0 - scaler)));
           } else {
-            map[x][y][0] = int(random(180.0+var, 360.0));
+            map[y][x][0] = int(random(180.0 + (90.0 - scaler), 360.0));
           }
           
         } else {
-          var = 0.0 + var2;
-          map[x][y][0] = int(random(var, 360.0-var));
+          map[y][x][0] = int(random(scaler, 360.0 - scaler));
         }
             
-        map[x][y][1] = int(random(0, 360)); // Food richness
-        map[x][y][2] = map[x][y][1]; // Food level
-        map[x][y][3] = int(noise(float(x) * lakes/size, float(y) * lakes/size) * 360.0); // Water amount
+        map[y][x][3] = int(noise(float(x) * lakes/size, float(y) * lakes/size) * 360.0); // Water amount
         
-        if (map[x][y][3] > seaLvl) { // When does water form a lake
-          map[x][y][2] = -1; // Disabling food from tile (in case of water walkers)
+        if (map[y][x][3] > seaLvl) { // When does water form a lake
+          map[y][x][2] = -1; // Disabling food from tile (in case of water walkers)
+          map[y][x][1] = int(random(180, 360));
         } else {
-          float ori = float(map[x][y][1]);
-          float bonus = float(map[x][y][3]) * (360.0 / (float(seaLvl)));
-          map[x][y][1] = int((ori + bonus) / 2.0); // Boosting richness if there's a lot of water and it will add something
+          map[y][x][1] = int(random(map[y][x][3], 360));
+          map[y][x][2] = map[y][x][1];
         }
         
       }
     }
-
-    closen(1,2);
+    
+    int iVal = int( float( size ) / ( 7.0 * ( float( size ) / sqrt( 2.0 * float( size ) ) ) ) );
+    for (int i = iVal; i > 0; i--) {
+      if (i <= 1) {
+        closen(i, 2*i);
+      } else {
+        closen(i * (i-1), i*i);
+      }
+    }
   }
 
   void display(String arg, boolean stroke) {
@@ -133,29 +133,29 @@ class Terra { //<>// //<>// //<>//
       noStroke();
     }
     
-    for (int x = 0; x < size; x++) {
-      for (int y = 0; y < size; y++) {
+    for (int y = 0; y < size; y++) {
+      for (int x = 0; x < size; x++) {
         int hue = 0;
         int sat = 200;
         int bri = 200;
         
         if (arg == "hue") {
 
-          if (map[x][y][2] == -1) {
+          if (map[y][x][2] == -1) {
             hue = 230;
             sat = 360;
           } else {
-            hue = map[x][y][0];
-            sat = map[x][y][1];
+            hue = map[y][x][0];
+            sat = map[y][x][2];
           }
           
         } else if (arg == "rich") {
           
-          if (map[x][y][2] == -1) {
+          if (map[y][x][2] == -1) {
             hue = 180;
           }
           
-          bri = map[x][y][1];
+          bri = map[y][x][1];
         }
         
         fill(hue, sat, bri);
