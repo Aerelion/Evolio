@@ -2,6 +2,7 @@ Terra world; //<>//
 HashMap<Character, Boolean> keyList = new HashMap<Character, Boolean>();
 ArrayList<Creature> entities;
 int stage, cycle;
+public float Euler = 2.71828182845904523536;
 
 void register(char ky) {
   keyList.put(ky, false); 
@@ -14,7 +15,8 @@ void generate() {
 void setup() {
   size(600, 600);
   colorMode(HSB, 360);
-  world = new Terra(200, 200, 6, 100); //<>//
+  world = new Terra(20, 200, 6, 100); //<>//
+  frameRate(0.2);
   stage = 0;
   cycle = 1;
   
@@ -24,6 +26,8 @@ void setup() {
 }
 
 void draw() {
+  world.update(entities);
+  
   if (keyList.get('1') == true) {
     world.display("rich", keyList.get('2'));
   } else if (keyList.get('3') == true) {
@@ -32,11 +36,10 @@ void draw() {
     world.display("world", keyList.get('2'));
   }
   
-  if (stage == 0) {
-    //world.update(entities);
-  } else if (stage == 1) {
     
-  }
+    //world.display();
+    
+    // Take screenshot , img_nr.png , for future conversion to video for frame consistency and presentation
 }
 
 void keyPressed() {

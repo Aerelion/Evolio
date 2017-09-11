@@ -113,7 +113,7 @@ class Terra { //<>// //<>// //<>//
       }
     }
     
-    int iVal = int( float( size ) / ( 7.0 * ( float( size ) / sqrt( 2.0 * float( size ) ) ) ) );
+    int iVal = int( float(size) / ( 7.0 * ( float(size) / sqrt( 2.0 * float(size)))));
     for (int i = iVal; i > 0; i--) {
       if (i <= 1) {
         closen(i, 2*i);
@@ -170,7 +170,8 @@ class Terra { //<>// //<>// //<>//
         
         fill(hue, sat, bri);
         rect(posVarX*x, posVarY*y, posVarX, posVarY);
-        
+        fill(0);
+        text(str(map[y][x][2]), posVarX*x, posVarY*y);
       }
     }
   } // End 'display'
@@ -178,13 +179,14 @@ class Terra { //<>// //<>// //<>//
   void update(ArrayList<Creature> creatures) {
     for (int y = 0; y < size; y++) {
       for (int x = 0; x < size; x++) {
-        creatureList.put(y*size + x, new ArrayList<Creature>());
-        
-        
+        //creatureList.put(y*size + x, new ArrayList<Creature>()); //Refresh creature lists
+        if (map[y][x][2] != -1) {
+          map[y][x][2] = map[y][x][2] + int( (1.0 / ( 1.0 + pow( Euler, -1.0 * ( ( float(map[y][x][2]) / 36.0) - 5.0)))) * (float(map[y][x][1]) / 180.0));// Update food
+        }
       }
     }
     
-    for (Creature n : creatures) {
+    /*for (Creature n : creatures) { // Place creatures in tile lists for efficiency
       int x_ = int(n.body.x);
       int y_ = int(n.body.y);
       
@@ -193,7 +195,14 @@ class Terra { //<>// //<>// //<>//
       ArrayList<Creature> population = creatureList.get(tile);
       population.add(n);
       creatureList.put(tile, population);
-    }
+    } */
+    
+    // Update per tile for fairness, location based instead of number
+    // Place things like eating & birthing in queue
+    
+    
+    // Resolve queue
+    
   } // End 'update'
   
 } // End class 'Terra'
