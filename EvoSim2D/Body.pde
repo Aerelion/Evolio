@@ -28,16 +28,18 @@ class Body {
     if (dead == false) {
       stroke(0);
       fill(hue, sat, 200);
-      ellipse(x, y, float(size) * (energy / 100.0), float(size) * (energy / 100.0));
+      ellipse(x, y, float(baseSize*size) * (energy / 100.0), float(baseSize*size) * (energy / 100.0));
     }
   }
   
   void die() {
     int tX = int(x / float(world.size));
     int tY = int(y / float(world.size));
-    world.map[tY][tX][2] = world.map[tY][tX][2] + 60;
+    if (world.map[tY][tX][2] != -1) {
+      world.map[tY][tX][2] = world.map[tY][tX][2] + 60;
+    }
     
-    world.creatureCounter--;
+    creatureCounter--;
     dead = true;
   }
 }

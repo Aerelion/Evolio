@@ -1,110 +1,97 @@
 class Creature {
   Body body;
-  String[] data = new String[4];
-  int bulk = 20;
-  int hue = 0;
+  Brain brain;
+  
+  String[] data = new String[2];
   
   String[] cut(String chrome) {
-    int Alleles = 0;
-    for (int c = 0; c < chrome.length(); c++) {
-      if (int(chrome.charAt(c)) >= int('A') && int(chrome.charAt(c)) <= int('Z')) {
-        Alleles++;
-      }
-    }
+    String[] subs = new String[genes];
     
-    String[] subs = new String[Alleles];
-    
-    for (int p = 0; p < chrome.length() / 4; p++) {
+    for (int p = 0; p < genes; p++) {
       subs[p] = chrome.substring(p*4, p*4+4);
     }
     
     return subs;
-  }
+  } // End cut
+  
   int[] give(String[] allele) {
     int[] dec = new int[allele.length];
     for (int g = 0; g < allele.length; g++) {
       dec[g] = int(allele[g].substring(1,4));
     }
     return dec;
-  }
+  } // End give1
   
   int give(String allel) {
     int g = int(allel.substring(1, 4));
     return g;
-  }
+  } // End give2
   
-  Creature (String[] chromes, int _x, int _y) {
-    data = chromes;
+  Creature () { // Initiating a fresh creature
+    generateData(); // Creating fresh chromosomes
     
     createBody();
-    body.x = _x;
-    body.y = _y;
+    
+    body.x = random(0, width);
+    body.y = random(0, height);
+  } // End init for fresh creature
+  
+  Creature(int _x, int _y, String[] chromes, String[][] genes) { // Spawning new creature from parents 
+    data = chromes;
+    createBody();
+  } // End init for spawning creature
+  
+  void generateData() {
+    String[] chromes = new String[2]; // Creating temp chrome pair
+    
+    for (int c = 0; c < 2; c++) { // Generating 2 random chromosomes
+    
+      for (int all = 0; all < genes; all++) { // Generating <genes> amount of genes
+        
+          int val = int(random(0,256)); // Choosing value
+          
+            chromes[c] = chromes[c] + str(int('A') + all); // Adding allele marker
+            if (val < 10) {
+              chromes[c] = chromes[c] + "00" + str(val);
+            } else if (val < 100) {
+              chromes[c] = chromes[c] + "0" + str(val);
+            } else {
+              chromes[c] = chromes[c] + str(val);
+            }
+        }
+    }
+    
+    data = chromes; // Storing chromosomes in data variable
+  } // End of generateData
+  
+  float additive(int a, int b) {
+    float res;
+    res = float(a) + float(b);
+    res = res / 2.0;
+    return res;
   }
   
-  Creature(int _x, int _y, String[] lead) {   
-    generateData(lead, 30);
+  float circular(int a, int b) {
+    float valA = map(a, 0, 256, 0, 360);
+    float valB = map(b, 0, 256, 0, 360);
+    float xA = cos(valA);
+    float yA = sin(valA);
+    float xB = cos(valB);
+    float yB = sin(valB);
     
-    int s_ = int( (float( res_A2[0]) * (float(scaleSize) / 256.0) + float( res_B2[0]) * (float(scaleSize) / 256.0)) / 2);
-    if (s_ == 0) {
-      s_ = 1;
-    }
-    body.size = s_;
-    body.hue = int( (float( res_A2[1]) * (360.0 / 256.0) + float( res_B2[1]) * (360.0 / 256.0)) / 2);
+    PVector vec = new PVector(xA + xB, yA + yB);
+    vec.normalize();
     
-  } // End of Main
-  
-  void generateData(String[] specie, int initSpread) {
-    int chrP = 2;
-    String[] chromies = new String[chrP * chromes];
-    for (int chr = 0; chr < chromes; chr++) {
-      String[] alleles = cut(specie[chr]);
-      
-      for (int cd = 0; cd < chrP; cd++) { // 2 chromes
-        int chrNr = chr*2 + cd;
-        
-        for (int a = 0; a < alleles.length; a++) { // Iterating over all the alleles
-          int rando = int(random(1,6));
-          int low,up;
-          int valS = give(alleles[a]);
-          if (valS - initSpread < 0) {
-            low = 0;
-          } else {
-            low = valS - initSpread;
-          }
-          if (valS + initSpread > 256) {
-            up = 256;
-          } else {
-            up = valS + initSpread;
-          }
-          
-          for (int i = 0; i < rando; i++) { // A random number of alleles per type
-            int val = int(random(low, up));
-            chromies[chrNr] = chromies[chrNr] + str(int('A') + a);
-            if (val < 10) {
-              chromies[chrNr] = chromies[chrNr] + "00" + str(val);
-            } else if (val < 100) {
-              chromies[chrNr] = chromies[chrNr] + "0" + str(val);
-            } else {
-              chromies[chrNr] = chromies[chrNr] + str(val);
-            }
-          }
-          
-        }
-        
-      }
-      
-      
-    }
-  } // End of generateData
+    return vec.heading();
+  }
   
   void createBody() {
     body = new Body();
-    String[] c1 = cut(data[0]);
-    String[] c2 = cut(data[1]);
-    int[] d1 = give(c1);
-    int[] d2 = give(c2);
+    int[] dA = give(cut(data[0]));
+    int[] dB = give(cut(data[1]));
     
-    int bodySize = 0;
+    body.baseSize = int(map(additive(dA[0], dB[0]), 0, 256, 1, float(screenSize) / float(worldSize)));
+    body.hue = int(circular(dA[1], dB[1]));
     
   } // End of createBody
   

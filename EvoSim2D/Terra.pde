@@ -1,8 +1,7 @@
-class Terra { //<>// //<>// //<>// //<>// //<>//
+class Terra {  //<>//
   int[][][] map;
   int size;
   int seaLvl;
-  int creatureCounter = 0;
   float lakes, growthRate;
   HashMap<Integer, ArrayList<Creature>> creatureList = new HashMap<Integer, ArrayList<Creature>>();
 
@@ -47,8 +46,6 @@ class Terra { //<>// //<>// //<>// //<>// //<>//
         tC = tC / float(count);
         tS = tS / float(count);
 
-        float sTan = atan(tS / tC);
-
         PVector sVec = new PVector(tC, tS);
         sVec.normalize();
 
@@ -56,10 +53,10 @@ class Terra { //<>// //<>// //<>// //<>// //<>//
         //int newHue = int((degrees(sTan)+ 360) % 360);
         totalRich = totalRich / count;
 
-        newMap[y][x][0] = newHue;
-        newMap[y][x][1] = totalRich;
-        newMap[y][x][2] = map[y][x][2];
-        newMap[y][x][3] = map[y][x][3];
+        newMap[y][x][0] = newHue; // Food type
+        newMap[y][x][1] = totalRich; // Food richness
+        newMap[y][x][2] = map[y][x][2]; // Food amount
+        newMap[y][x][3] = map[y][x][3]; // Height
       }
     }
 
@@ -197,6 +194,9 @@ class Terra { //<>// //<>// //<>// //<>// //<>//
     }
 
     for (Creature n : creatures) { // Place creatures in tile lists for efficiency
+      if (n.body.dead == true) {
+        //creatures.remove(n);
+      }
       int x_ = int(n.body.x / size);
       int y_ = int(n.body.y / size);
 
@@ -211,9 +211,6 @@ class Terra { //<>// //<>// //<>// //<>// //<>//
       ArrayList<Creature> list = creatureList.get(tile.getKey());
       for (Creature n : list) {
         n.update();
-        if (n.body.dead == true) {
-          // Remove creature
-        }
       }
     }
     // Update per tile for fairness, location based instead of number
