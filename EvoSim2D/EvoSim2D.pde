@@ -18,6 +18,8 @@ int screenSize = 600;
 int genes = 2;
 int startingCreatures = 100;
 int specieCounter = 0;
+int sensors = 8;
+int controls = 5;
 
 void register(char ky) {
   keyList.put(ky, false);

@@ -3,6 +3,8 @@ class Creature {
   Brain brain;
   
   String[] data = new String[2];
+  Connection[] connections;
+  Neuron[] neurons;
   
   String[] cut(String chrome) {
     String[] subs = new String[genes];
@@ -62,6 +64,10 @@ class Creature {
     }
     
     data = chromes; // Storing chromosomes in data variable
+    
+    for (int hn = 0; hn < sensors; hn++) {
+      neurons
+    }
   } // End of generateData
   
   float additive(int a, int b) {
@@ -96,7 +102,9 @@ class Creature {
   } // End of createBody
   
   void createBrain() {
+    brain = new Brain(body);
     
+    //for (
   } // End of createBrain
   
   void display() {
