@@ -124,8 +124,8 @@ class Terra {  //<>//
   } // End 'Terra'
 
   void display(String arg, boolean stroke) {
-    float posVarX = width/size;
-    float posVarY = height/size;
+    float posVarX = screenSize/size;
+    float posVarY = screenSize/size;
 
     if (stroke == true) {
       stroke(0);

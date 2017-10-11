@@ -3,8 +3,6 @@ class Creature {
   Brain brain;
   
   String[] data = new String[2];
-  Connection[] connections;
-  Neuron[] neurons;
   
   String[] cut(String chrome) {
     String[] subs = new String[genes];
@@ -34,13 +32,17 @@ class Creature {
     
     createBody();
     
-    body.x = random(0, width);
-    body.y = random(0, height);
+    generateBrain();
+    
+    body.x = random(0, screenSize);
+    body.y = random(0, screenSize);
   } // End init for fresh creature
   
-  Creature(int _x, int _y, String[] chromes, String[][] genes) { // Spawning new creature from parents 
+  Creature(int x_, int y_, String[] chromes, String[][] genes) { // Spawning new creature from parents 
     data = chromes;
     createBody();
+    body.x = x_;
+    body.y = y_;
   } // End init for spawning creature
   
   void generateData() {
@@ -64,10 +66,6 @@ class Creature {
     }
     
     data = chromes; // Storing chromosomes in data variable
-    
-    for (int hn = 0; hn < sensors; hn++) {
-      neurons
-    }
   } // End of generateData
   
   float additive(int a, int b) {
@@ -88,7 +86,10 @@ class Creature {
     PVector vec = new PVector(xA + xB, yA + yB);
     vec.normalize();
     
-    return vec.heading();
+    float ang = degrees(vec.heading());
+    ang += 360;
+    ang = ang % 360;
+    return ang;
   }
   
   void createBody() {
@@ -101,17 +102,25 @@ class Creature {
     
   } // End of createBody
   
-  void createBrain() {
-    brain = new Brain(body);
+  void generateBrain() {
+    int connecters = sensors*2;
+    brain = new Brain(body, sensors, connecters);
     
-    //for (
-  } // End of createBrain
+    for (int hn = 0; hn < sensors; hn++) {
+      brain.createNeuron("hid", hn + sensors + controls);
+    }
+    
+    for (int hc = 0; hc < connecters; hc++) {
+      brain.createConnection(hc);
+    }
+  } // End of generateBrain
   
   void display() {
     body.display();
   }
   
   void update() {
+    brain.update();
     body.update();
   }
 }

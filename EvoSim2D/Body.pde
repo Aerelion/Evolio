@@ -3,8 +3,9 @@ class Body {
   float y = 0;
   float energy = 100;
   float health = 100;
+  float consumption = 0.01;
   
-  int size = 2;
+  int size = 10;
   int hue = 0;
   int sat = 200;
   int baseSize = 5;
@@ -17,7 +18,7 @@ class Body {
   
   void update() {
     if (dead == false) {
-      energy--;
+      energy -= consumption;
       if (energy <= 0) {
         die();
       }
@@ -33,10 +34,10 @@ class Body {
   }
   
   void die() {
-    int tX = int(x / float(world.size));
-    int tY = int(y / float(world.size));
+    int tX = int(x / float(worldSize));
+    int tY = int(y / float(worldSize));
     if (world.map[tY][tX][2] != -1) {
-      world.map[tY][tX][2] = world.map[tY][tX][2] + 60;
+      world.map[tY][tX][2] = world.map[tY][tX][2] + int(health);
     }
     
     creatureCounter--;

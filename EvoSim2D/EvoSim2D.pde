@@ -18,25 +18,32 @@ int screenSize = 600;
 int genes = 2;
 int startingCreatures = 100;
 int specieCounter = 0;
-int sensors = 8;
+int sensors = 10;
 int controls = 5;
 
 void register(char ky) {
   keyList.put(ky, false);
 }
 
+void register(char[] ky) {
+  for (int k = 0; k < ky.length; k++) {
+    keyList.put(ky[k], false);
+  }
+}
+
 void setup() {
-  size(600, 600);
+  size(800, 600);
   colorMode(HSB, 360);
   world = new Terra(worldSize, 200, 6, 0.1, 100);
   frameRate(1);
   stage = 0;
   cycle = 1;
 
-  register('1');
-  register('2');
-  register('3');
-
+  register(new char[]{'1', '2', '3'});
+  for (int ch = 0; ch < 25; ch++) {
+    register(char(int('a') + ch));
+  }
+  
   for (int i = 0; i < startingCreatures; i++) {
     entities.add(new Creature());
     creatureCounter++;
@@ -44,6 +51,8 @@ void setup() {
 }
 
 void draw() {
+  clear();
+  background(100);
   world.update(entities);
 
   if (keyList.get('1') == true) {
@@ -60,6 +69,14 @@ void draw() {
   
   fill(0);
   text("Creature Count: " + str(creatureCounter), 0, 10);
+  
+  int bra = 1;
+  for (int i = 0; i < 25; i++) {
+    if (keyList.get(char(int('a') + i))) {
+      bra +=i;
+    }
+  }
+  entities.get(bra).brain.display();
   //world.display();
   // Update World
 

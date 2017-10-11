@@ -1,16 +1,10 @@
 class Connection {
   float weight;
-  boolean excited = false;
   int in, out;
-  int layer;
   
-  Connection(int i, int o) {
+  Connection(int i, int o, float w) {
     in = i;
     out = o;
-    layer = int( float(i) / 20.0);
-  }
-  
-  void reset() {
-    excited = false;
+    weight = w;
   }
 }
