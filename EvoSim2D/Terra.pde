@@ -2,7 +2,9 @@ class Terra {  //<>//
   int[][][] map;
   int size;
   int seaLvl;
-  float lakes, growthRate;
+  float lakes;
+  float growthRate = 0.017;
+  
   HashMap<Integer, ArrayList<Creature>> creatureList = new HashMap<Integer, ArrayList<Creature>>();
 
   private void closen(int depth, int mult) {
@@ -64,11 +66,10 @@ class Terra {  //<>//
   } // End 'closen'
 
 
-  Terra(int s_, int z_, float l_, float r_, int worldSeed) {
+  Terra(int s_, int z_, float l_, int worldSeed) {
     size = s_;
     seaLvl = z_;
     lakes = l_;
-    growthRate = r_;
     map = new int[size][size][4];
     randomSeed(worldSeed);
     noiseSeed(worldSeed);
@@ -103,7 +104,7 @@ class Terra {  //<>//
           map[y][x][1] = int(random(180, 360));
         } else {
           map[y][x][1] = int(random(map[y][x][3], 360));
-          map[y][x][2] = map[y][x][1];
+          map[y][x][2] = map[y][x][1]*10;
         }
 
 
@@ -146,7 +147,7 @@ class Terra {  //<>//
             sat = 360;
           } else {
             hue = map[y][x][0];
-            sat = map[y][x][2];
+            sat = map[y][x][2]/10;
           }
         } else if (arg == "rich") {
 
@@ -174,31 +175,39 @@ class Terra {  //<>//
   } // End 'display'
 
   void update(ArrayList<Creature> creatures) {
+    // Update map & refresh variables
     for (int y = 0; y < size; y++) {
       for (int x = 0; x < size; x++) {
-        //creatureList.put(y*size + x, new ArrayList<Creature>()); //Refresh creature lists
+        ArrayList<Creature> temp = creatureList.get(y*size + x);
+        temp.clear();
+        creatureList.put(y*size + x, temp); //Refresh creature lists
 
         if (map[y][x][2] != -1) { // Update food
 
-          float growth = -1 * pow( (float(map[y][x][2]) - 180.0) / 16.0, 2.0) + 120;
+          float growth = -1 * pow( (float(map[y][x][2])/10.0 - 180.0) / 16.0, 2.0) + 120;
           int base = 1;
-          if (int(growth) <= 0 && map[y][x][2] < 360) {
+          if (int(growth) <= 0 && map[y][x][2] < 3600) {
             growth = 1;
-          } else if (map[y][x][2] >= 360) {
+          } else if (map[y][x][2] >= 3600) {
             growth = 0;
             base = 0;
           }
-          map[y][x][2] = map[y][x][2] + base + int(growth * growthRate * (360.0 / float(map[y][x][1])));
+          map[y][x][2] = map[y][x][2] + int((base + growth * growthRate * (360.0 / float(map[y][x][1]))) * (1/frameRate) * 10);
         }
       }
     }
-
-    for (Creature n : creatures) { // Place creatures in tile lists for efficiency
-      if (n.body.dead == true) {
-        //creatures.remove(n);
+    
+    // Remove dead creatures from queue
+    for (int c = creatures.size() - 1; c >= 0; c--) {
+      if (creatures.get(c).body.dead == true) {
+        creatures.remove(c);
       }
-      int x_ = int(n.body.x / size);
-      int y_ = int(n.body.y / size);
+    }
+    
+    // Place creatures in tile lists for efficiency
+    for (Creature n : creatures) { 
+      int x_ = int(n.body.x / ratio);
+      int y_ = int(n.body.y / ratio);
 
       int tile = y_*size + x_;
 
@@ -206,11 +215,15 @@ class Terra {  //<>//
       population.add(n);
       creatureList.put(tile, population);
     }
-
-    for (Map.Entry tile : creatureList.entrySet()) {
-      ArrayList<Creature> list = creatureList.get(tile.getKey());
-      for (Creature n : list) {
-        n.update();
+    
+    // Iterate over mapped creatures and update them
+    for (int y = 0; y < size; y++) {
+      for (int x = 0; x < size; x++) {
+        int tile = y*size + x;
+        ArrayList<Creature> list = creatureList.get(tile);
+        for (Creature cre : list) {
+          cre.update();
+        }
       }
     }
     // Update per tile for fairness, location based instead of number

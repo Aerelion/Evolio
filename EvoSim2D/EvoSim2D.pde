@@ -13,13 +13,18 @@ int scaleSize = 10;
 // World setup
 int worldSize = 100;
 int screenSize = 600;
+float ratio = screenSize / worldSize;
 
 // Creature setup
-int genes = 2;
-int startingCreatures = 100;
+int genes = 3;
+int startingCreatures = 200;
 int specieCounter = 0;
 int sensors = 10;
 int controls = 5;
+float minSpeed = 0.01; // Px/s
+float maxSpeed = 0.1;
+float maxMotion = 2.5;
+float angularSpeed = PI / 8; //RAD
 
 void register(char ky) {
   keyList.put(ky, false);
@@ -32,10 +37,10 @@ void register(char[] ky) {
 }
 
 void setup() {
-  size(800, 600);
+  size(850, 600);
   colorMode(HSB, 360);
-  world = new Terra(worldSize, 200, 6, 0.1, 100);
-  frameRate(1);
+  world = new Terra(worldSize, 200, 6, 100);
+  frameRate(10);
   stage = 0;
   cycle = 1;
 
@@ -68,7 +73,8 @@ void draw() {
   }
   
   fill(0);
-  text("Creature Count: " + str(creatureCounter), 0, 10);
+  text("FPS: " + str(frameRate), 0, 10);
+  text("Creature Count: " + str(creatureCounter), 0, 20);
   
   int bra = 1;
   for (int i = 0; i < 25; i++) {
@@ -76,7 +82,9 @@ void draw() {
       bra +=i;
     }
   }
-  entities.get(bra).brain.display();
+  if (bra < entities.size()) {
+    entities.get(bra).brain.display();
+  }
   //world.display();
   // Update World
 

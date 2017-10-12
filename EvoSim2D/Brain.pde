@@ -7,6 +7,8 @@ class Brain {
   int inputs = sensors;
   int outputs = controls;
   
+  float totalLength = 0;
+  
   Brain(Body temp, int hiddens, int cs) {
     sensor = temp;
     neurons = new Neuron[inputs+outputs+hiddens];
@@ -47,12 +49,26 @@ class Brain {
       neurons[dest].addToSum(val * w);
     }
     
+    // Neuron activation
     for (int n = 0; n < neurons.length; n++) {
       neurons[n].update();
     }
-    // Node activation phase
+    
+    // Forwarding output node values to controller
     
   } // End of update
+  
+  boolean[] state() { // Returns current state of output nodes
+    boolean[] res = new boolean[outputs];
+    for (int n = 0; n < outputs; n++) {
+      if (neurons[n+inputs].val > 0.5) {
+        res[n] = true;
+      } else {
+        res[n] = false;
+      }
+    }
+    return res;
+  } // End of state
   
   void addNeuron(int nr, Neuron n) {
     neurons[nr + inputs+outputs] = n;
@@ -72,7 +88,7 @@ class Brain {
         int xO = neurons[n].x;
         int yO = neurons[n].y;
         while (xN == xO && yN == yO) {
-          if (xN == xO) { xN = int(random(1,inputs)); }
+          if (xN == xO) { xN = int(random(1,20)); }
           if (yN == yO) { yN = int(random(1,inputs)); }
           free = false;
         }
@@ -83,29 +99,74 @@ class Brain {
   }
   
   void createConnection(int nr) {
-    int home = int( random(0, neurons.length - outputs));
-    int dest = int( random(inputs, neurons.length));
-    Connection c = new Connection(home, dest, random(-1,1));
+    int home = 0;
+    int dest = 0;
+    while (home == dest) {
+      if (random(0,neurons.length-outputs) < inputs) {
+        home = int( random(0, inputs));
+      } else {
+        home = int( random(inputs + outputs, neurons.length));
+      }
+      dest = int( random(inputs, neurons.length));
+    }
+    float l = sqrt(pow(neurons[home].x - neurons[dest].x, 2) + pow(neurons[home].y - neurons[dest].y, 2));
+    totalLength += l;
+    Connection c = new Connection(home, dest, random(-1,1), l);
     connections[nr] = c;
   }
   
   float type() { // Checks food type
-    float res = float(world.map[int(sensor.y / worldSize)][int(sensor.x / worldSize)][0]) / 360.0;
+    float res = float(world.map[int(sensor.y / ratio)][int(sensor.x / ratio)][0]) / 360.0;
     
     return res;
   }
   
   float[] nearby() { // Checks closest creature (1 means close, 0 means out of range) in all 4 directions
     float[] res = new float[4];
-    res[0] = 1;
-    res[1] = 0.5;
-    res[2] = 0.1;
-    res[3] = 1;
+    int range = 4;
+    
+    if (world.creatureList.get(int(sensor.y / ratio) * worldSize + int(sensor.x / ratio)).size() > 1) {
+      res[0] = 1; res[1] = 1; res[2] = 1; res[3] = 1;
+    } else {
+      boolean found = false;
+      
+      for (int r = 1; r <= range; r++) {
+        ArrayList<Creature> temp = new ArrayList<Creature>();
+        
+        for (int y = -r; y <= r; y++) {
+          if (y >= 0 && y < worldSize) {
+            for (int x = -r; x <= r; x++) {
+              if (x >= 0 && x < worldSize) {
+                for (Creature c : world.creatureList.get((int(sensor.y / ratio) + y) * worldSize + (int(sensor.x / ratio) + x))) {
+                  temp.add(c);
+                }
+              }
+            }
+          }
+        }
+        
+        float dist = range*range*ratio;
+        int cre = 0;
+        for (int c = 0; c < temp.size(); c++) {
+          float tempDist = sqrt(pow(c.x-sensor.x, 2) + pow(c.y-sensor.y, 2));
+          if (tempDist < closest) {
+            dist = tempDist;
+            cre = c;
+          }
+        }
+        
+        if (found) {
+          r = range+1;
+        }
+        
+      }
+    }
+    
     return res;
   }
   
   float food() { // Checks food amount
-    float res = float(world.map[int(sensor.y / float(worldSize))][int(sensor.x / float(worldSize))][2]) / 360.0;
+    float res = float(world.map[int(sensor.y / ratio)][int(sensor.x / ratio)][2]) / 3600.0;
     if (res < 0) {
       res = 0;
     }
@@ -113,7 +174,7 @@ class Brain {
   }
   
   float water() { // Checks water
-    if (world.map[int(sensor.y / float(worldSize))][int(sensor.x / float(worldSize))][2] == -1) {
+    if (world.map[int(sensor.y / ratio)][int(sensor.x / ratio)][2] == -1) {
       return 1;
     } else {
       return 0;
@@ -123,12 +184,22 @@ class Brain {
   void display() {
     int xOffset = 15;
     int yOffset = 18;
-    stroke(0);
+    
+    stroke(0, 360, 360);
+    fill(0, 360, 360);
+    ellipse(sensor.x, sensor.y, 10, 10);
+    
     for (int n = 0; n < neurons.length; n++) {
       fill(neurons[n].val * 360);
+      if (neurons[n].val > 0.5) {
+        stroke(90, 360, 360);
+      } else {
+        stroke(0, 360, 360);
+      }
       ellipse(screenSize + neurons[n].y*yOffset + 10, neurons[n].x*xOffset + 20, 8, 8);
       fill(0);
-      text(str(neurons[n].val), screenSize + neurons[n].y*yOffset + 10, neurons[n].x*xOffset + 40);
+      text(str(n), screenSize + neurons[n].y * yOffset + 8, neurons[n].x * xOffset + 35);
+      //text(str(float(round(neurons[n].val*100.0)) / 100.0), screenSize + neurons[n].y*yOffset + 8, neurons[n].x*xOffset + 35);
     }
     
     for (int c = 0; c < connections.length; c++) {
@@ -141,9 +212,11 @@ class Brain {
         stroke(255);
       }
       line(screenSize + neurons[connections[c].in].y*yOffset + 10, neurons[connections[c].in].x*xOffset + 20, screenSize + neurons[connections[c].out].y*yOffset + 10, neurons[connections[c].out].x*xOffset + 20);
+      text("Nr: " + str(c) + ", from " + str(connections[c].in) + " to " + str(connections[c].out) + ". With length: " + str(float(round(connections[c].l*10))/10), screenSize+5, 20*yOffset + 25 + 10*c);
     }
     
+    text(str(totalLength), screenSize+5, 10);
+    
     stroke(0);
-    text(str(neurons[2].val) + " - " + str(neurons[8].val), screenSize + 50, 20*yOffset + 50);
   } // End of display
 }

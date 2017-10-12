@@ -36,6 +36,7 @@ class Creature {
     
     body.x = random(0, screenSize);
     body.y = random(0, screenSize);
+    body.brain_en = brain.totalLength/1000 + brain.neurons.length/50;
   } // End init for fresh creature
   
   Creature(int x_, int y_, String[] chromes, String[][] genes) { // Spawning new creature from parents 
@@ -93,11 +94,14 @@ class Creature {
   }
   
   void createBody() {
-    body = new Body();
     int[] dA = give(cut(data[0]));
     int[] dB = give(cut(data[1]));
     
-    body.baseSize = int(map(additive(dA[0], dB[0]), 0, 256, 1, float(screenSize) / float(worldSize)));
+    float speed = map(additive(dA[2], dB[2]), 0, 256, minSpeed, maxSpeed);
+    
+    body = new Body(speed);
+    
+    body.baseSize = int(map(additive(dA[0], dB[0]), 0, 256, 1, ratio));
     body.hue = int(circular(dA[1], dB[1]));
     
   } // End of createBody
@@ -121,6 +125,7 @@ class Creature {
   
   void update() {
     brain.update();
-    body.update();
+    boolean[] controller = brain.state();
+    body.update(controller);
   }
 }
