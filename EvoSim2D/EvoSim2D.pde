@@ -76,7 +76,7 @@ void draw() {
   text("FPS: " + str(frameRate), 0, 10);
   text("Creature Count: " + str(creatureCounter), 0, 20);
   
-  int bra = 1;
+  int bra = 0;
   for (int i = 0; i < 25; i++) {
     if (keyList.get(char(int('a') + i))) {
       bra +=i;

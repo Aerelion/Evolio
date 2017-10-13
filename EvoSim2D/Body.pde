@@ -10,6 +10,7 @@ class Body {
   
   float size = 2;
   int hue = 0;
+  int accept = 20;
   int sat = 200;
   int sizeMod = 10;
   int baseSize = 5;
@@ -63,6 +64,17 @@ class Body {
         direction.rotate(angularSpeed * (1/frameRate));
         used_en += 0.02;
       }
+      
+      if (action[4]) {
+        int yPos = int(y / ratio);
+        int xPos = int(x / ratio);
+        
+        if (world.map[yPos][xPos][2] == -1) {
+          used_en += 0.1;
+        } else {
+          //if (world.map[yPos][xPos][0] > 
+        }
+      }
         
       energy -= (base_en + brain_en + body_en + used_en) * (1/frameRate);
       if (energy <= 0) {
@@ -79,10 +91,6 @@ class Body {
       fill(hue, sat, 200);
       ellipse(x, y, size, size);
     }
-  }
-  
-  void move(int d) {
-    
   }
   
   void die() {

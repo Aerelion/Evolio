@@ -107,10 +107,11 @@ class Creature {
   } // End of createBody
   
   void generateBrain() {
-    int connecters = sensors*2;
-    brain = new Brain(body, sensors, connecters);
+    int hiders = round(random(1, 5));
+    int connecters = round(random(hiders, sensors));
+    brain = new Brain(body, hiders, connecters);
     
-    for (int hn = 0; hn < sensors; hn++) {
+    for (int hn = 0; hn < hiders; hn++) {
       brain.createNeuron("hid", hn + sensors + controls);
     }
     

@@ -123,42 +123,70 @@ class Brain {
   
   float[] nearby() { // Checks closest creature (1 means close, 0 means out of range) in all 4 directions
     float[] res = new float[4];
-    int range = 4;
+    int range = 3;
     
     if (world.creatureList.get(int(sensor.y / ratio) * worldSize + int(sensor.x / ratio)).size() > 1) {
       res[0] = 1; res[1] = 1; res[2] = 1; res[3] = 1;
     } else {
-      boolean found = false;
+      
+      float dist = range * range * ratio;
+      float gX = 0;
+      float gY = 0;
       
       for (int r = 1; r <= range; r++) {
         ArrayList<Creature> temp = new ArrayList<Creature>();
         
         for (int y = -r; y <= r; y++) {
-          if (y >= 0 && y < worldSize) {
+          int yTile = int(sensor.y / ratio) + y;
+          if (yTile >= 0 && yTile < worldSize) {
             for (int x = -r; x <= r; x++) {
-              if (x >= 0 && x < worldSize) {
-                for (Creature c : world.creatureList.get((int(sensor.y / ratio) + y) * worldSize + (int(sensor.x / ratio) + x))) {
-                  temp.add(c);
+              int xTile = int(sensor.x / ratio) + x;
+              if (xTile >= 0 && xTile < worldSize) {
+                ArrayList<Creature> tile = world.creatureList.get(yTile * worldSize + xTile);
+                if (tile.size() > 0 && (x == 0 && y == 0) == false) {
+                  for (Creature c : tile) {
+                    temp.add(c);
+                  }
                 }
               }
             }
           }
-        }
+        } // End of creature search loop
         
-        float dist = range*range*ratio;
-        int cre = 0;
         for (int c = 0; c < temp.size(); c++) {
-          float tempDist = sqrt(pow(c.x-sensor.x, 2) + pow(c.y-sensor.y, 2));
-          if (tempDist < closest) {
+          float tempDist = sqrt(pow(temp.get(c).body.x-sensor.x, 2) + pow(temp.get(c).body.y-sensor.y, 2));
+          if (tempDist < dist) {
             dist = tempDist;
-            cre = c;
+            gX = temp.get(c).body.x - sensor.x;
+            gY = temp.get(c).body.y - sensor.y;
           }
         }
         
-        if (found) {
+        if (temp.size() > 0) {
           r = range+1;
         }
         
+      } // End of range loop
+      
+      if (gX > 0) {
+        res[0] = map(gX, 0, (range+1) * ratio, 1, 0);
+        res[1] = 0;
+      } else if (gX < 0) {
+        res[0] = 0;
+        res[1] = map(gX, (range+1) * -ratio, 0, 0, 1);
+      } else {
+        res[0] = 0;
+        res[1] = 0;
+      }
+      if (gY > 0) {
+        res[2] = map(gY, 0, (range+1) * ratio, 1, 0);
+        res[3] = 0;
+      } else if (gY < 0) {
+        res[2] = 0;
+        res[3] = map(gY, (range+1) * -ratio, 0, 0, 1);
+      } else {
+        res[2] = 0;
+        res[3] = 0;
       }
     }
     
