@@ -20,12 +20,7 @@ class Creature {
       dec[g] = int(allele[g].substring(1,4));
     }
     return dec;
-  } // End give1
-  
-  int give(String allel) {
-    int g = int(allel.substring(1, 4));
-    return g;
-  } // End give2
+  } // End give
   
   Creature () { // Initiating a fresh creature
     generateData(); // Creating fresh chromosomes
@@ -53,21 +48,27 @@ class Creature {
     
       for (int all = 0; all < genes; all++) { // Generating <genes> amount of genes
         
-          int val = int(random(0,256)); // Choosing value
-          
-            chromes[c] = chromes[c] + str(int('A') + all); // Adding allele marker
-            if (val < 10) {
-              chromes[c] = chromes[c] + "00" + str(val);
-            } else if (val < 100) {
-              chromes[c] = chromes[c] + "0" + str(val);
-            } else {
-              chromes[c] = chromes[c] + str(val);
-            }
-        }
+        int val = int(random(0,256)); // Choosing value
+        chromes[c] += construct(val); // Adding value to current DNA strand
+      }
     }
     
     data = chromes; // Storing chromosomes in data variable
   } // End of generateData
+  
+  void mate(Creature p) {
+    String[] myData = data;
+    String[] noData = p.data;
+    
+    myData = crossover(myData);
+    noData = crossover(noData);
+    
+    String A = myData[round(random(0, 1))];
+    String B = noData[round(random(0, 1))];
+    
+    A = mutate(A); 
+    B = mutate(B);
+  }
   
   float additive(int a, int b) {
     float res;
@@ -97,13 +98,15 @@ class Creature {
     int[] dA = give(cut(data[0]));
     int[] dB = give(cut(data[1]));
     
-    float speed = map(additive(dA[2], dB[2]), 0, 256, minSpeed, maxSpeed);
+    float speed = map(additive(dA[0], dB[0]), 0, 256, Body.minSpeed, Body.maxSpeed);
     
-    body = new Body(speed);
+    body = new Body(speed, this);
     
-    body.baseSize = int(map(additive(dA[0], dB[0]), 0, 256, 1, ratio));
-    body.hue = int(circular(dA[1], dB[1]));
+    body.size = int(map(additive(dA[1], dB[1]), 0, 256, 1, ratio));
+    body.hue = int(circular(dA[2], dB[2]));
+    body.accept = int(map(additive(dA[3], dB[3]), 0, 256, 0, Body.maxAccept));
     
+    body.body_en = ((speed * (1.0 / Body.maxSpeed)) + (body.size / ratio)) + (body.accept * (1.0 / Body.maxAccept)) / 10.0;
   } // End of createBody
   
   void generateBrain() {
@@ -128,5 +131,41 @@ class Creature {
     brain.update();
     boolean[] controller = brain.state();
     body.update(controller);
+  }
+  
+  String[] crossover(String[] d) {
+    int val = int(random(0, genes) + 1);
+    String a1 = d[0].substring(0, val*4);
+    String b1 = d[1].substring(0, val*4);
+    String a2 = d[0].substring(val*4);
+    String b2 = d[1].substring(val*4);
+    
+    d[0] = a1 + b2;
+    d[1] = b1 + a2;
+    
+    return d;
+  }
+  
+  String mutate(String chrome) {
+    String res = "";
+    int[] alleles = give(cut(chrome));
+    
+    for (int i = 0; i < alleles.length; i++) {
+      int temp = alleles[i];
+      temp = min(max(temp + round(random(-mutateStrength, mutateStrength)), 0), 360);
+      res += construct(temp);
+    }
+    return res;
+  }
+  
+  String construct(int var) {
+    String res = "A";
+    if (var < 10) {
+      res += "00";
+    } else if (var < 100) {
+      res += "0";
+    }
+    res += str(var);
+    return res;
   }
 }

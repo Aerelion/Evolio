@@ -16,15 +16,12 @@ int screenSize = 600;
 float ratio = screenSize / worldSize;
 
 // Creature setup
-int genes = 3;
+int genes = 4;
 int startingCreatures = 200;
 int specieCounter = 0;
 int sensors = 10;
-int controls = 5;
-float minSpeed = 0.01; // Px/s
-float maxSpeed = 0.1;
-float maxMotion = 2.5;
-float angularSpeed = PI / 8; //RAD
+int controls = 6;
+int mutateStrength = 5;
 
 void register(char ky) {
   keyList.put(ky, false);

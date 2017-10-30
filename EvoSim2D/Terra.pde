@@ -113,7 +113,13 @@ class Terra {  //<>//
         creatureList.put(tile, new ArrayList<Creature>());
       }
     }
-
+    /*
+      size
+      ----------------
+      7 * size
+          ------------
+          root(2*size)
+    */
     int iVal = int( float(size) / ( 7.0 * ( float(size) / sqrt( 2.0 * float(size)))));
     for (int i = iVal; i > 0; i--) {
       if (i <= 1) {

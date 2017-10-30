@@ -123,46 +123,52 @@ class Brain {
   
   float[] nearby() { // Checks closest creature (1 means close, 0 means out of range) in all 4 directions
     float[] res = new float[4];
+    Creature closest = null;
     int range = 3;
     
-    if (world.creatureList.get(int(sensor.y / ratio) * worldSize + int(sensor.x / ratio)).size() > 1) {
+    if (world.creatureList.get(int(sensor.y / ratio) * worldSize + int(sensor.x / ratio)).size() > 1) { // Checks for creature in the same tile
       res[0] = 1; res[1] = 1; res[2] = 1; res[3] = 1;
-    } else {
+    } else { // Check others if nothing is there
       
-      float dist = range * range * ratio;
+      float dist = range * range * ratio; // Declare highest possible distance
       float gX = 0;
       float gY = 0;
       
-      for (int r = 1; r <= range; r++) {
-        ArrayList<Creature> temp = new ArrayList<Creature>();
+      for (int r = 1; r <= range; r++) { // Checks surrounding tiles from inwards out
+        ArrayList<Creature> temp = new ArrayList<Creature>(); // Create a temporary list for storing potential creatures
         
-        for (int y = -r; y <= r; y++) {
+        for (int y = -r; y <= r; y++) { // y Loop
           int yTile = int(sensor.y / ratio) + y;
-          if (yTile >= 0 && yTile < worldSize) {
-            for (int x = -r; x <= r; x++) {
+          if (yTile >= 0 && yTile < worldSize) { // Check if y is within bounds
+            for (int x = -r; x <= r; x++) { // x Loop
               int xTile = int(sensor.x / ratio) + x;
-              if (xTile >= 0 && xTile < worldSize) {
-                ArrayList<Creature> tile = world.creatureList.get(yTile * worldSize + xTile);
-                if (tile.size() > 0 && (x == 0 && y == 0) == false) {
+              if (xTile >= 0 && xTile < worldSize) { // Check if x is within bounds
+              
+                ArrayList<Creature> tile = world.creatureList.get(yTile * worldSize + xTile); // Retrieve list with creatures in current tile
+                if (tile.size() > 0 && (x == 0 && y == 0) == false) { // Check for creatures if tile is not own tile
                   for (Creature c : tile) {
                     temp.add(c);
                   }
                 }
+                
               }
-            }
+            } // End of x loop
           }
-        } // End of creature search loop
+        } // End of y loop
         
-        for (int c = 0; c < temp.size(); c++) {
-          float tempDist = sqrt(pow(temp.get(c).body.x-sensor.x, 2) + pow(temp.get(c).body.y-sensor.y, 2));
-          if (tempDist < dist) {
-            dist = tempDist;
-            gX = temp.get(c).body.x - sensor.x;
-            gY = temp.get(c).body.y - sensor.y;
+        for (int c = 0; c < temp.size(); c++) { // Loop over all creatures added to temp list
+          float tempDist = sqrt(pow(temp.get(c).body.x-sensor.x, 2) + pow(temp.get(c).body.y-sensor.y, 2)); // Determine distance to closest creature
+          
+          if (tempDist < dist) { // Check if creature is closer than the current closest creature
+            dist = tempDist; // Set closest distance to closer creature
+            gX = temp.get(c).body.x - sensor.x; // Set X difference
+            gY = temp.get(c).body.y - sensor.y; // Set Y difference
+            
+            closest = temp.get(c); // Store closest creature
           }
         }
         
-        if (temp.size() > 0) {
+        if (temp.size() > 0) { // Force end of for loop if creatures were found
           r = range+1;
         }
         
@@ -188,6 +194,12 @@ class Brain {
         res[2] = 0;
         res[3] = 0;
       }
+    }
+    
+    if (closest != null) { // Check if there is a creature found
+      sensor.partner = closest;
+    } else {
+      sensor.partner = null;
     }
     
     return res;
