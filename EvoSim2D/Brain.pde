@@ -251,7 +251,19 @@ class Brain {
       } else {
         stroke(255);
       }
-      line(screenSize + neurons[connections[c].in].y*yOffset + 10, neurons[connections[c].in].x*xOffset + 20, screenSize + neurons[connections[c].out].y*yOffset + 10, neurons[connections[c].out].x*xOffset + 20);
+      float xIn = neurons[connections[c].in].x*xOffset;
+      float yIn = neurons[connections[c].in].y*yOffset;
+      float xOut = neurons[connections[c].out].x*xOffset;
+      float yOut = neurons[connections[c].out].y*yOffset;
+      PVector conn = new PVector(xOut - xIn, yOut - yIn);
+      conn.normalize();
+      conn.mult(7);
+      line(screenSize + yIn + 10, xIn + 20, screenSize + yOut + 10, xOut + 20);
+      stroke(0);
+      conn.rotate(2.8);
+      line(screenSize + yOut + 10, xOut + 20, screenSize + conn.y + yOut + 10, conn.x + xOut + 20);
+      conn.rotate(-5.6);
+      line(screenSize + yOut + 10, xOut + 20, screenSize + conn.y + yOut + 10, conn.x + xOut + 20);
       text("Nr: " + str(c) + ", from " + str(connections[c].in) + " to " + str(connections[c].out) + ". With length: " + str(float(round(connections[c].l*10))/10), screenSize+5, 20*yOffset + 25 + 10*c);
     }
     

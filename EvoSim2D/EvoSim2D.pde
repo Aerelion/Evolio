@@ -67,6 +67,7 @@ void draw() {
 
   for (Creature n : entities) {
     n.display();
+    n.age += 1/frameRate;
   }
   
   fill(0);

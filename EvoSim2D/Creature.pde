@@ -2,6 +2,8 @@ class Creature {
   Body body;
   Brain brain;
   
+  float age = 0;
+  
   String[] data = new String[2];
   
   String[] cut(String chrome) {
@@ -36,6 +38,7 @@ class Creature {
   
   Creature(int x_, int y_, String[] chromes, String[][] genes) { // Spawning new creature from parents 
     data = chromes;
+    
     createBody();
     body.x = x_;
     body.y = y_;
@@ -57,17 +60,76 @@ class Creature {
   } // End of generateData
   
   void mate(Creature p) {
-    String[] myData = data;
-    String[] noData = p.data;
+    // Retrieve data
+    String[] data_new = new String[2];
+    String[] data_self = data;
+    String[] data_them = p.data;
     
-    myData = crossover(myData);
-    noData = crossover(noData);
+    // Internal crossover
+    data_self = crossover(data_self);
+    data_them = crossover(data_them);
     
-    String A = myData[round(random(0, 1))];
-    String B = noData[round(random(0, 1))];
+    // Selecting one strand for new creature
+    String chromeA = data_self[round(random(0, 1))];
+    String chromeB = data_them[round(random(0, 1))];
     
-    A = mutate(A); 
-    B = mutate(B);
+    // Mutating strands
+    chromeA = mutate(chromeA); 
+    chromeB = mutate(chromeB);
+    
+    // Adding strands to new creatures dataset
+    data_new[0] = chromeA;
+    data_new[1] = chromeB;
+    
+    // Brain recombination
+    // Retrieving data
+    Connection[][] c_data = new Connection[2][];
+    c_data[0] = brain.connections;
+    c_data[1] = p.brain.connections;
+    Connection[] c_new;
+    
+    Neuron[][] n_data = new Neuron[2][];
+    n_data[0] = brain.neurons;
+    n_data[1] = p.brain.neurons;
+    Neuron[] n_new;
+    
+    // Selecting split points
+    int[] splits = new int[int(random(0, max(1, c_data[0].length/5)))]; // Random amount of split points
+    
+    for (int i = 0; i < splits.length; i++) {
+      splits[i] = int(random(0, c_data[0].length));
+    } // Selecting split points
+    splits = sort(splits); // Sorting split points
+    
+    int split = 0;
+    boolean flip = true;
+    ArrayList<Connection> c_temp = new ArrayList<Connection>(); // Temporary storage for connection data
+    ArrayList<Neuron> n_temp = new ArrayList<Neuron>(); // Temporary storage for neurons
+    int[][] l = new int[2][]; 
+    l[0] = new int[n_data.length - sensors - controls];
+    l[1] = new int[n_data.length - sensors - controls];
+    for (int c = 0; c < max(c_data[0].length, c_data[0].length); c++) { // Iterate over length longest array
+      if (c == splits[split]) { flip = !flip; split++; } // If c meets a split point switch to other strand
+      int d = flip ? 0:1; // Setting var d to 0 or 1 for easy array access
+      
+      Connection temp = c_data[d][c]; // Retrieving connection from array
+      if (temp != null) { // Checking if connection exists
+        
+        c_temp.add(temp); // Adding existing connection to list
+        int ne = temp.out - sensors - controls;
+        if (ne >= 0) {
+          n_temp.add(n_data[d][temp.out]);
+        }
+      }
+    }
+    
+    c_new = new Connection[c_temp.size()]; // Setting static array to dynamic array size
+    for (int c = 0; c < c_temp.size(); c++) { // Adding dynamic entries to static array
+      c_new[c] = c_temp.get(c);
+    }
+    c_temp = null; // Removing dynamic thingy
+    
+    entities.add(new Creature());
   }
   
   float additive(int a, int b) {

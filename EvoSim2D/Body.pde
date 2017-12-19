@@ -7,9 +7,9 @@ class Body{
   static final float base_en = 0.1; // Base energy use for all creatures
   static final float baseSize = 0.9; // Base size
   static final int maxAccept = 20; // Maximum degrees of allowed foods
-  static final float minSpeed = 0.01; // Minimum speed in pixels per second
-  static final float maxSpeed = 0.1; // Max speed in pixels per second
-  static final float maxMotion = 2.5; // Maximum length of motion vector
+  static final float minSpeed = 0.005; // Minimum speed in pixels per second
+  static final float maxSpeed = 0.05; // Max speed in pixels per second
+  static final float maxMotion = 1.5; // Maximum length of motion vector
   static final float angularSpeed = PI / 8; // Speed of rotation, in radians
   
   float size = 2;
@@ -83,11 +83,11 @@ class Body{
           int foodHue = world.map[yPos][xPos][0];
           int foodVal = world.map[yPos][xPos][2];
           if ((foodHue + accept) % 360 < (hue + 2*accept) % 360) { // Check if the creature can accept this type of food
-            if (foodVal > 20) { // Checks if there's enough food
-              used_en -= 10.0;
-              world.map[yPos][xPos][2] = foodVal - round(20.0 / frameRate);
-            } else if (foodVal > 0) {
-              used_en += 0.3;
+            if (foodVal > 50) { // Checks if there's enough food
+              used_en -= 5.0;
+              world.map[yPos][xPos][2] = foodVal - round(50.0 / frameRate);
+            } else if (foodVal > 10) {
+              used_en -= 0.5;
               world.map[yPos][xPos][2] = foodVal - round(10.0 / frameRate);
             } else {
               used_en += 0.5;
@@ -103,13 +103,17 @@ class Body{
           self.mate(partner);
         }
       } // End of if(mate)
-      
-      energy -= (base_en + brain_en + body_en + used_en + (currentSize / (10*ratio))) * (1/frameRate) * max((energy/100), 0.8);
+      float energyMod = (base_en + brain_en + body_en + used_en + (currentSize / (10*ratio))) * (1 / frameRate);
+      if (energyMod >= 0) {
+        energy -= energyMod * max((energy/100), 0.8);
+      } else {
+        energy -= energyMod;
+      }
       
       if (energy <= 0) {
         die();
       } else {
-        currentSize = (baseSize * size) * (energy / 100.0);
+        currentSize = (baseSize * size) * sqrt(energy / 100.0);
       }
     }
   }
