@@ -108,7 +108,7 @@ class Creature {
     int[][] l = new int[2][]; 
     l[0] = new int[n_data.length - sensors - controls];
     l[1] = new int[n_data.length - sensors - controls];
-    for (int c = 0; c < max(c_data[0].length, c_data[0].length); c++) { // Iterate over length longest array
+    for (int c = 0; c < max(c_data[0].length, c_data[1].length); c++) { // Iterate over length longest array
       if (c == splits[split]) { flip = !flip; split++; } // If c meets a split point switch to other strand
       int d = flip ? 0:1; // Setting var d to 0 or 1 for easy array access
       
@@ -116,20 +116,27 @@ class Creature {
       if (temp != null) { // Checking if connection exists
         
         c_temp.add(temp); // Adding existing connection to list
-        int ne = temp.out - sensors - controls;
-        if (ne >= 0) {
+        if (temp.out >= sensors + controls) { // Adding connected neuron to neuron list if not input or output
           n_temp.add(n_data[d][temp.out]);
         }
       }
     }
     
     c_new = new Connection[c_temp.size()]; // Setting static array to dynamic array size
+    n_new = new Neuron[n_temp.size()];
+    
     for (int c = 0; c < c_temp.size(); c++) { // Adding dynamic entries to static array
       c_new[c] = c_temp.get(c);
     }
+    for (int n = 0; n < n_temp.size(); n++) {
+      n_new[n] = n_temp.get(n);
+    }
     c_temp = null; // Removing dynamic thingy
+    n_temp = null;
     
-    entities.add(new Creature());
+    
+    
+    entities.add(new Creature(body.x, body.y, c_new, n_new));
   }
   
   float additive(int a, int b) {
