@@ -36,8 +36,8 @@ class Creature {
     body.brain_en = brain.totalLength/1000 + brain.neurons.length/50;
   } // End init for fresh creature
   
-  Creature(int x_, int y_, String[] chromes, String[][] genes) { // Spawning new creature from parents 
-    data = chromes;
+  Creature(float x_, float y_, String[] b_, Neuron[] n_, Connection[] c_) { // Spawning new creature from parents 
+    data = b_;
     
     createBody();
     body.x = x_;
@@ -60,83 +60,112 @@ class Creature {
   } // End of generateData
   
   void mate(Creature p) {
+    //--------- Mutating body ------------
     // Retrieve data
-    String[] data_new = new String[2];
-    String[] data_self = data;
-    String[] data_them = p.data;
+    String[] bodyData_child = new String[2];
+    String[] bodyData_self = data;
+    String[] bodyData_partner = p.data;
     
     // Internal crossover
-    data_self = crossover(data_self);
-    data_them = crossover(data_them);
+    bodyData_self = crossover(bodyData_self);
+    bodyData_partner = crossover(bodyData_partner);
     
     // Selecting one strand for new creature
-    String chromeA = data_self[round(random(0, 1))];
-    String chromeB = data_them[round(random(0, 1))];
+    String chromeA = bodyData_self[round(random(0, 1))];
+    String chromeB = bodyData_partner[round(random(0, 1))];
     
     // Mutating strands
     chromeA = mutate(chromeA); 
     chromeB = mutate(chromeB);
     
     // Adding strands to new creatures dataset
-    data_new[0] = chromeA;
-    data_new[1] = chromeB;
+    bodyData_child[0] = chromeA;
+    bodyData_child[1] = chromeB;
     
-    // Brain recombination
+    //---------- Brain recombination ---------------
     // Retrieving data
-    Connection[][] c_data = new Connection[2][];
-    c_data[0] = brain.connections;
-    c_data[1] = p.brain.connections;
-    Connection[] c_new;
+    Connection[][] brainData_oldC = new Connection[2][]; // Stores connections from both parents
+    brainData_oldC[0] = brain.connections;
+    brainData_oldC[1] = p.brain.connections;
+    Connection[] brainData_childC; // Child connection storage
     
-    Neuron[][] n_data = new Neuron[2][];
-    n_data[0] = brain.neurons;
-    n_data[1] = p.brain.neurons;
-    Neuron[] n_new;
+    Neuron[][] brainData_oldN = new Neuron[2][];
+    brainData_oldN[0] = brain.neurons;
+    brainData_oldN[1] = p.brain.neurons;
+    Neuron[] brainData_childN;
     
+    // Combine the 2 brains using external crossover, switch between choosing from one or the other.
     // Selecting split points
-    int[] splits = new int[int(random(0, max(1, c_data[0].length/5)))]; // Random amount of split points
+    int[] splits = new int[int(random(0, max(1, brainData_oldC[0].length/5)))]; // Random amount of split points based on the amount of connections in the self brain
     
     for (int i = 0; i < splits.length; i++) {
-      splits[i] = int(random(0, c_data[0].length));
-    } // Selecting split points
+      splits[i] = int(random(0, brainData_oldC[0].length));
+    } // Selecting location of split points
     splits = sort(splits); // Sorting split points
     
     int split = 0;
+    int currentStrand = 0;
     boolean flip = true;
     ArrayList<Connection> c_temp = new ArrayList<Connection>(); // Temporary storage for connection data
-    ArrayList<Neuron> n_temp = new ArrayList<Neuron>(); // Temporary storage for neurons
-    int[][] l = new int[2][]; 
-    l[0] = new int[n_data.length - sensors - controls];
-    l[1] = new int[n_data.length - sensors - controls];
-    for (int c = 0; c < max(c_data[0].length, c_data[1].length); c++) { // Iterate over length longest array
-      if (c == splits[split]) { flip = !flip; split++; } // If c meets a split point switch to other strand
-      int d = flip ? 0:1; // Setting var d to 0 or 1 for easy array access
+    ArrayList<Neuron> n_temp = new ArrayList<Neuron>(); // Temporary storage for neurons belonging to the connection that gets copied over
+    HashMap<Integer, Boolean>[] rec = new HashMap[2];
+    rec[0] = new HashMap<Integer, Boolean>();
+    rec[1] = new HashMap<Integer, Boolean>();
+    for (int connection = 0; connection < max(brainData_oldC[0].length, brainData_oldC[1].length); connection++) { // Iterate over the length of the longest array
+      if (connection == splits[split]) { // Switch from Brain DNA strand if a splitpoint is reached
+        flip = !flip;
+        currentStrand = int(flip);
+        split++;
+      }
       
-      Connection temp = c_data[d][c]; // Retrieving connection from array
-      if (temp != null) { // Checking if connection exists
+      Connection temp = brainData_oldC[currentStrand][connection];
+      if (temp != null) {
+        c_temp.add(temp); // Add selected connection to temporary storage
         
-        c_temp.add(temp); // Adding existing connection to list
-        if (temp.out >= sensors + controls) { // Adding connected neuron to neuron list if not input or output
-          n_temp.add(n_data[d][temp.out]);
+        if (rec[connection].get(temp.in) == null || rec[connection].get(temp.in) == false) {
+          rec[connection].put(temp.in, true);
+        }
+        
+        if (rec[connection].get(temp.out) == null || rec[connection].get(temp.out) == false) {
+          rec[connection].put(temp.out, true);
+        }
+        
+        if (temp.in >= sensors + controls) { // If the connection receives inputs from a hidden neuron, add the neuron to temporary storage
+          n_temp.add(brainData_oldN[currentStrand][temp.in]);
+        }
+        
+        if (temp.out >= sensors + controls) { // If the connection is connected to a hidden neuron, add the hidden neuron to temporary storage
+          n_temp.add(brainData_oldN[currentStrand][temp.out]);
         }
       }
     }
     
-    c_new = new Connection[c_temp.size()]; // Setting static array to dynamic array size
-    n_new = new Neuron[n_temp.size()];
+   HashMap<Integer, Boolean> serving = new HashMap<Integer, Boolean>();
+   HashMap<Integer, Boolean> receiving = new HashMap<Integer, Boolean>();
+    
+    //------------ Mutating the strands ----------
+    
+    for (Connection c : c_temp) {
+      serving.put(c.in, true);
+      receiving.put(c.out, true);
+    }
+    // Checking for unlinked neurons:
+    
+    
+    // Creating new creature
+    brainData_childC = new Connection[c_temp.size()]; // Setting the static array to the correct size
+    brainData_childN = new Neuron[n_temp.size()]; // Dependant on the variable amount of connections and neurons
     
     for (int c = 0; c < c_temp.size(); c++) { // Adding dynamic entries to static array
-      c_new[c] = c_temp.get(c);
+      brainData_childC[c] = c_temp.get(c);
     }
     for (int n = 0; n < n_temp.size(); n++) {
-      n_new[n] = n_temp.get(n);
+      brainData_childN[n] = n_temp.get(n);
     }
     c_temp = null; // Removing dynamic thingy
     n_temp = null;
     
-    
-    
-    entities.add(new Creature(body.x, body.y, c_new, n_new));
+    entities.add(new Creature(body.x, body.y, bodyData_child, brainData_childN, brainData_childC));
   }
   
   float additive(int a, int b) {

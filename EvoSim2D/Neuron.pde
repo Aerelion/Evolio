@@ -2,7 +2,6 @@ class Neuron {
   String type = "hid";
   float sum;
   float val;
-  int label;
   int x,y;
   
   float sigmoid(float x) {
