@@ -46,30 +46,30 @@ class Body{
       
       boolean moved = false;
       if (action[0]) { // Act0 = forward
-        motion.add(PVector.mult(direction, (1.0/frameRate) * (min(energy, 100) / 100)));
+        motion.add(PVector.mult(direction, (0.1) * (min(energy, 100) / 100)));
         motion.limit(maxMotion);
         used_en += 0.1;
         moved = true;
       }
       if (action[1]) { // Act1 = backwards
-        motion.add(PVector.mult(direction, (-0.5/frameRate) * (min(energy, 100) / 100)));
+        motion.add(PVector.mult(direction, (-0.05) * (min(energy, 100) / 100)));
         motion.limit(maxMotion);
         used_en += 0.1;
         moved = true;
       }
       if (moved == false) {
-        motion.mult(pow(0.8, 1.0/frameRate));
+        motion.mult(pow(0.8, 0.1));
         if (motion.mag() < 0.1) {
           motion.set(0,0);
         }
       }
       
       if (action[2]) { // Act2 = turn left
-        direction.rotate(angularSpeed * (1/frameRate));
+        direction.rotate(angularSpeed * 0.1);
         used_en += 0.02;
       }
       if (action[3]) { // Act3 = turn right
-        direction.rotate(-angularSpeed * (1/frameRate));
+        direction.rotate(-angularSpeed * 0.1);
         used_en += 0.02;
       }
       
@@ -85,10 +85,10 @@ class Body{
           if ((foodHue + accept) % 360 < (hue + 2*accept) % 360) { // Check if the creature can accept this type of food
             if (foodVal > 50) { // Checks if there's enough food
               used_en -= 5.0;
-              world.map[yPos][xPos][2] = foodVal - round(50.0 / frameRate);
+              world.map[yPos][xPos][2] = foodVal - 5;
             } else if (foodVal > 10) {
               used_en -= 0.5;
-              world.map[yPos][xPos][2] = foodVal - round(10.0 / frameRate);
+              world.map[yPos][xPos][2] = foodVal - 1;
             } else {
               used_en += 0.5;
             }

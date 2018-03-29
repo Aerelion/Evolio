@@ -198,7 +198,7 @@ class Terra {  //<>//
             growth = 0;
             base = 0;
           }
-          map[y][x][2] = map[y][x][2] + int((base + growth * growthRate * (360.0 / float(map[y][x][1]))) * (1/frameRate) * 10);
+          map[y][x][2] = map[y][x][2] + int((base + growth * growthRate * (360.0 / float(map[y][x][1]))));
         }
       }
     }
