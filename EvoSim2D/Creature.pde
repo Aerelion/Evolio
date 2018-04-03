@@ -47,8 +47,8 @@ class Creature {
     
     createBrain(n_, c_); //<>//
     
-    body.x = x_; //<>//
-    body.y = y_;
+    body.x = min(screenSize-1, max(1, x_ + random(-5, 5))); //<>//
+    body.y = min(screenSize-1, max(1, y_ + random(-5, 5)));
     body.brain_en = brain.totalLength/1000 + brain.neurons.length/50;
   } // End init for spawning creature
   

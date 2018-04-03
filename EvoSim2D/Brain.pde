@@ -223,8 +223,8 @@ class Brain {
   }
   
   void display() {
-    int xOffset = 15;
-    int yOffset = 18;
+    int xOffset = 15 + (width-screenSize)/50;
+    int yOffset = 18 + (width-screenSize)/100;
     
     stroke(0, 360, 360);
     fill(0, 360, 360);
@@ -237,7 +237,7 @@ class Brain {
       } else {
         stroke(0, 360, 360);
       }
-      ellipse(screenSize + neurons[n].y*yOffset + 10, neurons[n].x*xOffset + 20, 8, 8);
+      ellipse(screenSize + neurons[n].y*yOffset + 10, neurons[n].x*xOffset + 20, 15, 15);
       fill(0);
       text(str(n), screenSize + neurons[n].y * yOffset + 8, neurons[n].x * xOffset + 35);
       //text(str(float(round(neurons[n].val*100.0)) / 100.0), screenSize + neurons[n].y*yOffset + 8, neurons[n].x*xOffset + 35);
@@ -265,11 +265,11 @@ class Brain {
       line(screenSize + yOut + 10, xOut + 20, screenSize + conn.y + yOut + 10, conn.x + xOut + 20);
       conn.rotate(-5.6);
       line(screenSize + yOut + 10, xOut + 20, screenSize + conn.y + yOut + 10, conn.x + xOut + 20);
-      text("Nr: " + str(c) + ", from " + str(connections[c].in) + " to " + str(connections[c].out) + ". With length: " + str(float(round(connections[c].l*10))/10), screenSize+5, 20*yOffset + 25 + 10*c);
+      text("Nr: " + str(c) + ", from " + str(connections[c].in) + " to " + str(connections[c].out) + ". With length: " + str(float(round(connections[c].l*10))/10), screenSize+5, 20*xOffset + xOffset*3 + 10*c);
     }
     
     text(str(totalLength), screenSize+5, 10);
-    
+    text(str(sensor.energy), screenSize+100, 10);
     stroke(0);
   } // End of display
 }

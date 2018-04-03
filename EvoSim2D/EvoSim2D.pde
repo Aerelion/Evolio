@@ -8,16 +8,19 @@ ArrayList<Creature> entities = new ArrayList<Creature>();
 // Loop setup
 int stage, cycle;
 int creatureCounter = 0;
+int[] countArray;
+int countCharge = 0;
+int countSize = 800;
 int scaleSize = 10;
 
 // World setup
 int worldSize = 100;
-int screenSize = 600;
+int screenSize = 1000;
 float ratio = screenSize / worldSize;
 
 // Creature setup
 int genes = 4;
-int startingCreatures = 200;
+int startingCreatures = 500;
 int specieCounter = 0;
 int sensors = 10;
 int controls = 6;
@@ -34,7 +37,7 @@ void register(char[] ky) {
 }
 
 void setup() {
-  size(850, 600);
+  size(1800, 1000);
   colorMode(HSB, 360);
   world = new Terra(worldSize, 200, 6, 100);
   frameRate(10);
@@ -50,6 +53,8 @@ void setup() {
     entities.add(new Creature());
     creatureCounter++;
   }
+  
+  countArray = new int[countSize];
 }
 
 void draw() {
@@ -71,6 +76,8 @@ void draw() {
   }
   
   fill(0);
+  rect(0, 0, 115, 20);
+  fill(255);
   text("FPS: " + str(frameRate), 0, 10);
   text("Creature Count: " + str(creatureCounter), 0, 20);
   
@@ -94,7 +101,18 @@ void draw() {
   // Display World
 
   // Display Creatures
-
+  stroke(255, 0, 0);
+  for (int i = 0; i < countSize; i++) {
+    line(screenSize+i, height, screenSize+i, height-(countArray[i]/10));
+  }
+  if (countCharge >= 10) {
+    for (int i = countSize-2; i >= 0; i--) {
+      countArray[i+1] = countArray[i];
+    }
+    countArray[0] = creatureCounter;
+    countCharge = 0;
+  }
+  countCharge++;
   // Take screenshot , img_nr.png , for future conversion to video for frame consistency and presentation
 }
 

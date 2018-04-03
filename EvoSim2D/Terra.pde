@@ -212,14 +212,16 @@ class Terra {  //<>//
     
     // Place creatures in tile lists for efficiency
     for (Creature n : creatures) { 
-      int x_ = int(n.body.x / ratio);
-      int y_ = int(n.body.y / ratio);
+      if (n != null) {
+        int x_ = int(n.body.x / ratio);
+        int y_ = int(n.body.y / ratio);
 
-      int tile = y_*size + x_;
+        int tile = y_*size + x_;
 
-      ArrayList<Creature> population = creatureList.get(tile);
-      population.add(n);
-      creatureList.put(tile, population);
+        ArrayList<Creature> population = creatureList.get(tile);
+        population.add(n);
+        creatureList.put(tile, population);
+      }
     }
     
     // Iterate over mapped creatures and update them

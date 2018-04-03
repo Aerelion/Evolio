@@ -116,7 +116,7 @@ class Body{
       } // End of if(mate)
       energy -= mate_en;
       mate_en = 0;
-      float energyMod = (base_en + brain_en + body_en + used_en + (currentSize / (10*ratio))) * (1 / frameRate);
+      float energyMod = (base_en + brain_en + body_en + used_en + pow(self.age/1000, 1.2) + (currentSize / (10*ratio))) * (1 / frameRate);
       if (energyMod >= 0) {
         energy -= energyMod * max((energy/100), 0.8);
       } else {
@@ -137,7 +137,7 @@ class Body{
       fill(hue, 200, 200);
       ellipse(x, y, currentSize, currentSize);
       fill(0);
-      text(str(round(energy)), x, y);
+      //text(str(round(energy)), x, y);
     }
   }
   
