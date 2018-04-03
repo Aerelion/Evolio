@@ -14,10 +14,10 @@ class Brain {
     neurons = new Neuron[inputs+outputs+hiddens];
     connections = new Connection[cs];
     for (int n = 0; n < inputs; n++) {
-      neurons[n] = new Neuron("in", 0, n);
+      neurons[n] = new Neuron("in", 0, n, n);
     }
     for (int n = inputs; n < inputs+outputs; n++) {
-      neurons[n] = new Neuron("out", 20, n-inputs);
+      neurons[n] = new Neuron("out", 20, n-inputs, n);
     }
   }
   
@@ -72,6 +72,7 @@ class Brain {
   
   void addNeuron(int nr, Neuron n) {
     neurons[nr + inputs+outputs] = n;
+    neurons[nr + inputs+outputs].nr = nr + inputs+outputs;
   }
   
   void addConnection(int nr, Connection c) {
@@ -94,7 +95,7 @@ class Brain {
         }
       }
     }
-    Neuron n = new Neuron(t, xN, yN);
+    Neuron n = new Neuron(t, xN, yN, nr);
     neurons[nr] = n;
   }
   

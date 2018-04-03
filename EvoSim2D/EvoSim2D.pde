@@ -83,6 +83,11 @@ void draw() {
   if (bra < entities.size()) {
     entities.get(bra).brain.display();
   }
+  
+  if (creatureCounter < 300) {
+    entities.add(new Creature());
+    creatureCounter++;
+  }
   //world.display();
   // Update World
 

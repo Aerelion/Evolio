@@ -19,6 +19,7 @@ class Body{
   
   float brain_en = 0;
   float body_en = 0;
+  float mate_en = 0;
   
   boolean dead = false;
   
@@ -101,8 +102,20 @@ class Body{
       if (action[5] && partner != null && partner.brain.state()[5]) { // Act5 = mate || checks if there's a partner and if partner is willing
         if (energy > 200 && partner.body.energy > 100) {
           self.mate(partner);
+          mate_en += 100;
+          partner.body.mate_en += 100;
+        }
+      } else if (action[5] && energy > 250) {
+        if (self.depreviation > 100) {
+          self.mate(self);
+          self.depreviation = 0;
+          mate_en += 200;
+        } else {
+          self.depreviation++;
         }
       } // End of if(mate)
+      energy -= mate_en;
+      mate_en = 0;
       float energyMod = (base_en + brain_en + body_en + used_en + (currentSize / (10*ratio))) * (1 / frameRate);
       if (energyMod >= 0) {
         energy -= energyMod * max((energy/100), 0.8);

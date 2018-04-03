@@ -3,6 +3,7 @@ class Neuron {
   float sum;
   float val;
   int x,y;
+  int nr;
   
   float sigmoid(float x) {
     float res = 1.0 / ( 1.0 + exp(-x));
@@ -10,7 +11,7 @@ class Neuron {
     return res;
   }
   
-  Neuron(String t_, int x_, int y_) {
+  Neuron(String t_, int x_, int y_, int n_) {
     if (t_.equals("in") || t_.equals("hid") || t_.equals("out")) {
       type = t_;
     }
@@ -22,6 +23,7 @@ class Neuron {
       val = 0;
       sum = 0;
     }
+    nr = n_;
   }
   
   void update() {
