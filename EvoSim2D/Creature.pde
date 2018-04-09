@@ -159,11 +159,11 @@ class Creature {
       int in = c.in;
       int out = c.out;
       if (c.in >= sensors+controls) {
-        in = boot.get(in) + sensors + controls;
+        in = boot.get(in) + sensors + controls - 1;
       }
       
       if (c.out >= sensors+controls) {
-        out = boot.get(out) + sensors + controls;
+        out = boot.get(out) + sensors + controls - 1;
       }
       c.in = in;
       c.out = out;
@@ -175,22 +175,22 @@ class Creature {
     
     //------------ Mutating the strands ----------
     // Checking for unlinked neurons:
-    for (int b = 0; b < boots; b++) {
+    /*for (int b = 0; b < boots; b++) {
       if (serving.get(b) == null) {
         if (random(0, 1) < mut_solve) {
           int from = int(random(0, sensors));
           float le = sqrt(pow(n_temp.get(b).x - brainData_oldN[0][from].x, 2.0) + pow(n_temp.get(b).y - brainData_oldN[0][from].y, 2.0));
-          c_temp.add(new Connection(from, b+sensors+controls, random(-1,1), le));
+          c_temp.add(new Connection(from, b+sensors+controls-1, random(-1,1), le));
         }
       }
       if (receiving.get(b) == null) {
         if (random(0, 1) < mut_solve) {
           int from = int(random(sensors, sensors+controls));
           float le = sqrt(pow(n_temp.get(b).x - brainData_oldN[0][from].x, 2.0) + pow(n_temp.get(b).y - brainData_oldN[0][from].y, 2.0));
-          c_temp.add(new Connection(b+sensors+controls, from, random(-1,1), le));
+          c_temp.add(new Connection(b+sensors+controls-1, from, random(-1,1), le));
         }
       }
-    }
+    } */
     
     // Creating new creature
     brainData_childC = new Connection[c_temp.size()]; // Setting the static array to the correct size

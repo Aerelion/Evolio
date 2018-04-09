@@ -8,9 +8,11 @@ ArrayList<Creature> entities = new ArrayList<Creature>();
 // Loop setup
 int stage, cycle;
 int creatureCounter = 0;
+int creatureCharge = 0;
 int[] countArray;
 int countCharge = 0;
 int countSize = 800;
+int countHigh = 1;
 int scaleSize = 10;
 
 // World setup
@@ -20,7 +22,7 @@ float ratio = screenSize / worldSize;
 
 // Creature setup
 int genes = 4;
-int startingCreatures = 500;
+int startingCreatures = 1000;
 int specieCounter = 0;
 int sensors = 10;
 int controls = 6;
@@ -91,9 +93,15 @@ void draw() {
     entities.get(bra).brain.display();
   }
   
-  if (creatureCounter < 300) {
+  if (creatureCounter < 10) {
     entities.add(new Creature());
     creatureCounter++;
+  }
+  
+  if (creatureCharge > 10) {
+    entities.add(new Creature());
+    creatureCounter++;
+    creatureCharge = 0;
   }
   //world.display();
   // Update World
@@ -101,16 +109,26 @@ void draw() {
   // Display World
 
   // Display Creatures
-  stroke(255, 0, 0);
+  stroke(0, 360, 300);
   for (int i = 0; i < countSize; i++) {
-    line(screenSize+i, height, screenSize+i, height-(countArray[i]/10));
+    line(screenSize+i, height, screenSize+i, height-(float(countArray[i])/(float(countHigh) / 150)));
   }
+  stroke(0);
+  line(screenSize, height - float(countHigh) / (float(countHigh) / 150), screenSize+countSize, height - float(countHigh) / (float(countHigh) / 150));
+  line(screenSize, height - float(countArray[0]) / (float(countHigh) / 150), screenSize+75, height - float(countArray[0]) / (float(countHigh) / 150));
+  text(str(countHigh), width - 50, height - float(countHigh) / (float(countHigh) / 150));
+  text(str(countArray[0]), screenSize+60, height - float(countArray[0]) / (float(countHigh) / 150));
   if (countCharge >= 10) {
+    countHigh = 1;
     for (int i = countSize-2; i >= 0; i--) {
+      if (countHigh < countArray[i]) {
+        countHigh = countArray[i];
+      }
       countArray[i+1] = countArray[i];
     }
     countArray[0] = creatureCounter;
     countCharge = 0;
+    creatureCharge++;
   }
   countCharge++;
   // Take screenshot , img_nr.png , for future conversion to video for frame consistency and presentation

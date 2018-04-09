@@ -145,7 +145,7 @@ class Body{
     int tX = int(x / ratio);
     int tY = int(y / ratio);
     if (world.map[tY][tX][2] != -1) {
-      world.map[tY][tX][2] = world.map[tY][tX][2] + int(health)*6;
+      world.map[tY][tX][2] = world.map[tY][tX][2] + 1;
     }
     
     creatureCounter--;
